@@ -1,0 +1,20 @@
+{
+    "name": "tadreeblms/hrms-integration",
+    "description": "HRMS Integration Module for TadreebLMS",
+    "type": "library",
+    "require": {
+        "php": ">=8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\HrmsIntegrationModule\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\HrmsIntegrationModule\\Providers\\HrmsServiceProvider"
+            ]
+        }
+    }
+}

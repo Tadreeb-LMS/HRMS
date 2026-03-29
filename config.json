@@ -1,0 +1,9 @@
+{
+    "name": "HRMS Integration Module",
+    "description": "Enterprise API layer for HR systems (Zoho, SAP, Darwinbox) with Webhooks and Rules Engine. Configure providers via the custom module settings route.",
+    "version": "1.0.0",
+    "integration_key": "HRMS_INTEGRATION",
+    "metadata": {
+        "fields": {}
+    }
+}
