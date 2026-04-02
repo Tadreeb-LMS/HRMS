@@ -197,7 +197,7 @@ class HrmsSettingsController extends Controller
             }
 
             try {
-                $url = "https://people.{$domain}/people/api/forms/json/employee/getRecords?limit=1";
+                $url = "https://people.{$domain}/api/forms/employee/getRecords?limit=1";
                 $response = Http::withHeaders([
                     'Authorization' => 'Zoho-oauthtoken ' . $accessToken
                 ])->timeout(10)->get($url);
@@ -275,7 +275,7 @@ class HrmsSettingsController extends Controller
                 return response()->json(['message' => 'Could not generate access token. Try re-authenticating.'], 400);
             }
 
-            $url = "https://people.{$domain}/people/api/forms/json/employee/getRecords";
+            $url = "https://people.{$domain}/api/forms/employee/getRecords";
 
             $response = Http::withHeaders([
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken
