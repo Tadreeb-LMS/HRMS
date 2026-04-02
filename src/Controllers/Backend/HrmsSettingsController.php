@@ -49,7 +49,7 @@ class HrmsSettingsController extends Controller
 
         foreach ($providers as $slug => &$provider) {
             $provider['enabled'] = filter_var($settings["hrms_{$slug}_active"] ?? false, FILTER_VALIDATE_BOOLEAN);
-            
+
             // Check credentials exist
             if ($slug === 'zoho') {
                 $provider['has_credentials'] = !empty($settings['hrms_zoho_client_id']) && !empty($settings['hrms_zoho_client_secret']);
@@ -97,7 +97,7 @@ class HrmsSettingsController extends Controller
 
         foreach ($inputData as $key => $value) {
             // Only save keys that relate to the specific slug to prevent cross-contamination
-            if(strpos($key, "hrms_{$slug}_") === 0 || $key === "hrms_{$slug}_active") {
+            if (strpos($key, "hrms_{$slug}_") === 0 || $key === "hrms_{$slug}_active") {
                 Config::updateOrCreate(
                     ['key' => $key],
                     ['value' => $value ?? '']
@@ -127,7 +127,7 @@ class HrmsSettingsController extends Controller
         if ($newState) {
             $settings = Config::pluck('value', 'key')->toArray();
             $testResult = $this->testConnection($slug, $settings);
-            
+
             if (!$testResult['success']) {
                 return response()->json([
                     'success' => false,
@@ -163,9 +163,9 @@ class HrmsSettingsController extends Controller
             $tokenUrl = "https://accounts.{$domain}/oauth/v2/token";
             $response = Http::asForm()->post($tokenUrl, [
                 'refresh_token' => $refreshToken,
-                'client_id'     => $clientId,
+                'client_id' => $clientId,
                 'client_secret' => $clientSecret,
-                'grant_type'    => 'refresh_token',
+                'grant_type' => 'refresh_token',
             ]);
 
             if ($response->successful()) {
@@ -209,25 +209,25 @@ class HrmsSettingsController extends Controller
                     }
                     return ['success' => true, 'message' => 'Connection OK.'];
                 }
-                
+
                 return ['success' => false, 'message' => 'HTTP Error: ' . $response->status()];
 
             } catch (\Exception $e) {
                 return ['success' => false, 'message' => 'HTTP Exception: ' . $e->getMessage()];
             }
         }
-        
+
         // Simple fallback checks for other providers
         if ($slug === 'sap') {
-            return !empty($settings['hrms_sap_api_key']) && !empty($settings['hrms_sap_company_id']) 
+            return !empty($settings['hrms_sap_api_key']) && !empty($settings['hrms_sap_company_id'])
                 ? ['success' => true, 'message' => 'OK'] : ['success' => false, 'message' => 'Credentials not set.'];
         }
         if ($slug === 'darwinbox') {
-            return !empty($settings['hrms_darwinbox_api_token']) 
+            return !empty($settings['hrms_darwinbox_api_token'])
                 ? ['success' => true, 'message' => 'OK'] : ['success' => false, 'message' => 'Credentials not set.'];
         }
         if ($slug === 'custom') {
-            return !empty($settings['hrms_custom_bearer_token']) 
+            return !empty($settings['hrms_custom_bearer_token'])
                 ? ['success' => true, 'message' => 'OK'] : ['success' => false, 'message' => 'Credentials not set.'];
         }
 
@@ -280,12 +280,12 @@ class HrmsSettingsController extends Controller
             $response = Http::withHeaders([
                 'Authorization' => 'Zoho-oauthtoken ' . $accessToken
             ])->get($url);
-            
+
             $employees = [];
             if ($response->successful()) {
                 $data = $response->json();
                 if (isset($data['response']['result']) && is_array($data['response']['result'])) {
-                    foreach($data['response']['result'] as $record) {
+                    foreach ($data['response']['result'] as $record) {
                         $employees[] = isset($record[0]) ? $record[0] : $record;
                     }
                 }
@@ -299,19 +299,20 @@ class HrmsSettingsController extends Controller
 
             $syncedCount = 0;
             foreach ($employees as $emp) {
-                $email = $emp['EmailID'] ?? ($emp['Email'] ?? null);
-                $zohoId = $emp['EmployeeID'] ?? ($emp['Zoho_ID'] ?? null);
+                $email = $emp['Email ID'] ?? ($emp['EmailID'] ?? ($emp['Email'] ?? null));
+                $zohoId = $emp['Employee ID'] ?? ($emp['EmployeeID'] ?? ($emp['Zoho ID'] ?? ($emp['Zoho_ID'] ?? null)));
 
-                if (!$email && !$zohoId) continue;
-                
-                $firstName = $emp['FirstName'] ?? 'Unknown';
-                $lastName = $emp['LastName'] ?? '';
+                if (!$email && !$zohoId)
+                    continue;
+
+                $firstName = $emp['First Name'] ?? ($emp['FirstName'] ?? 'Unknown');
+                $lastName = $emp['Last Name'] ?? ($emp['LastName'] ?? '');
 
                 $user = null;
                 if ($zohoId) {
                     $user = User::where('hrms_provider', 'zoho')->where('hrms_id', $zohoId)->first();
                 }
-                
+
                 if (!$user && $email) {
                     $user = User::where('email', $email)->first();
                 }
@@ -331,12 +332,12 @@ class HrmsSettingsController extends Controller
                         'hrms_id' => $zohoId,
                         'password' => bcrypt(Str::random(16)),
                     ]);
-                    
+
                     if ($user->wasRecentlyCreated) {
                         $user->assignRole('student');
                     }
                 }
-                
+
                 $syncedCount++;
             }
 
